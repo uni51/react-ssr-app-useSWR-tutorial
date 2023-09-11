@@ -1,22 +1,20 @@
 import React from "react";
-import useSWR from "swr";
+import Userlist from "./UserList";
+import { useAuth } from "./hooks/auth";
+import { SWRConfig } from "swr";
+import { apiClient } from "./lib/apiClient";
 
-const fetcher = (...args) => fetch(...args).then((response) => response.json());
+const fetcher = (url) => apiClient(url).then((res) => res.data);
 
 function App() {
-  const { data, error } = useSWR("http://localhost:3006/users", fetcher);
-  if (error) return <h1>{error}</h1>;
+  const { user } = useAuth({ middleware: "auth" });
+  console.log(user);
 
   return (
-    <div className="App">
-      {data ? (
-        data.map((user) => {
-          return <h1>{user}</h1>;
-        })
-      ) : (
-        <h1>Loading</h1>
-      )}
-    </div>
+    <SWRConfig value={{ fetcher }}>
+      <Userlist />
+      <p>{user}</p>
+    </SWRConfig>
   );
 }
 
